@@ -4,9 +4,5 @@ node_modules/
 .env
 .env.*
 !.env.sample
-/src/generated/prisma
 
-/generated/prisma
-/prisma
-/README.md
-/mongod.conf
+generated/prisma/
