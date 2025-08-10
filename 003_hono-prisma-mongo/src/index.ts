@@ -1,18 +1,28 @@
-import { Hono } from "hono";
-import { userRoutes } from "./routes";
+import { serve } from "bun";
+import app from "./app";
+import { config } from "./config/env.config";
 
-const app = new Hono();
-const PORT = parseInt(String(process.env.PORT)) || 3030;
+const startServer = async () => {
+  try {
+    serve({
+      port: config.PORT,
 
-app.get("/", (c) => {
-  return c.json({ message: "Raam Raam Laadle" });
-});
+      // app.fetch will be entry point of our application.
+      fetch: app.fetch,
+    });
 
-app.route("/users", userRoutes);
+    console.log(`Server running on Port: ${config.PORT}`);
 
-export default {
-  port: PORT,
+    process.on("SIGTERM", async () => {
+      console.info("SIGTERM received, shutting down gracefully");
+      process.exit(0);
+    });
 
-  // app.fetch will be entry point of our application.
-  fetch: app.fetch,
+    return app;
+  } catch (err) {
+    console.error(`Failed to start server: `, err);
+    process.exit(1);
+  }
 };
+
+startServer();
