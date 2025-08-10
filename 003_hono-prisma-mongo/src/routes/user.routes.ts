@@ -1,6 +1,15 @@
 import { Hono } from "hono";
 import prisma from "../lib/prisma";
 
+import * as z from "zod"; // for validation
+import { zValidator } from "@hono/zod-validator" // validation middleware using zod
+
+const createUserSchema = z.object({
+  email: z.email(),
+  password: z.string().trim().min(4).max(40),
+  name: z.string().max(40).optional(),
+})
+
 const userRoutes = new Hono()
   .get("/", async (c) => {
     try {
@@ -17,9 +26,8 @@ const userRoutes = new Hono()
       console.error(`Failed to fetch all users: `, err);
       c.status(500);
       return c.json({
-        message: `Failed to fetch all users: ${
-          err instanceof Error ? err.message : "Something went wrong"
-        }`,
+        message: `Failed to fetch all users: ${err instanceof Error ? err.message : "Something went wrong"
+          }`,
       });
     }
   })
@@ -33,13 +41,12 @@ const userRoutes = new Hono()
       console.error(`Failed to fetch user with id: ${id} `, err);
       c.status(500);
       return c.json({
-        message: `Failed to fetch user with id ${id} : ${
-          err instanceof Error ? err.message : "Something went wrong"
-        }`,
+        message: `Failed to fetch user with id ${id} : ${err instanceof Error ? err.message : "Something went wrong"
+          }`,
       });
     }
   })
-  .post("/user", async (c) => {
+  .post("/user", zValidator("json", createUserSchema) ,async (c) => {
     try {
       const body = await c.req.json();
 
