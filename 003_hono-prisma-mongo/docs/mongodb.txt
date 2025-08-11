@@ -1,0 +1,697 @@
+use apun_ka_db // if db is not present it will create it
+db.user // if user collection not exist, it will create it
+
+
+// to return the collections stored within current db
+show collections
+
+// renaming collection
+db.user.renameCollection("users")
+
+
+// to insert single data in the collection
+db.user.insertOne({name: "Raam", age: 17})
+// it returns acknowledgement: true, ObjectId
+
+// to insert many data in the collection
+db.user.insertMany([{name: "Raam", age: 17}])
+// return ack and objectId of each
+// e.g. 0: ObjectId, 1: ObjectId, etc.
+
+// to get all the data in the collection
+db.user.find()
+
+// to count all the data in the collection
+db.user.find().count()
+
+// return first document (data) that matched the expression
+db.user.find({age: 17})
+
+// return all documents that mactches the condition
+db.user.findMany({age: 17});
+
+
+
+// as it only prints first 20 documents in the terminal, it returns the cursor
+// using that cursor we can get next documents from the result
+
+to print all the documents in the terminal use
+db.user.find().forEach(x => {printjson(x)})
+
+// to return all the documents & not just print in the terminal
+db.user.find().toArray()
+
+// to get documents when a certain condition met on a number value
+db.user.find({age: 
+
+// $ is for reserved keywords in mongodb
+	{	// less than 12
+		$lt: 12,
+// less than & equal to 12; <= 12
+`	$lte: 12,
+
+// greater than 16
+$gt: 16,
+
+// greater than & equal to 16
+$gte: 16
+
+	}
+})
+
+
+
+// Update Methods
+db.users.updateOne( { find this data}, { data to update within this })
+new_db> db.users.updateOne({name: "Naalaa"}, {age: 15})
+MongoInvalidArgumentError: Update document requires atomic operators
+
+// use $set keyword
+ db.users.updateOne({name: "Naalaa"}, { $set: {age: 15} })
+
+
+// finding many docs with this condition & setting this
+// if field not existing while setting, it will create it
+
+ db.users.updateMany({age: 12}, {$set: {isEligible: false} })
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 8,
+  modifiedCount: 8,
+  upsertedCount: 0
+}
+
+
+// finding with filters (age: $gte) then updating those documents
+ db.users.updateMany({age: {$gte: 15}}, {$set: {isEligible: true} })
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 16,
+  modifiedCount: 16,
+  upsertedCount: 0
+}
+
+
+// delete all docs that match the filter
+db.users.deleteMany({age: {$lt: 11}})
+
+// delete first doc that matched the filter
+db.users.deleteOne({age: 12})
+
+// pass empty object to delete all the docs within the collection
+db.users.deleteMany({})
+
+
+// select query in mongodb: projection
+db.users.find(
+ // filter: to select all docus
+{},
+
+// options
+// projection
+{
+// to only select name field
+name: 1
+
+// _id is inclusive so it will be added automatically
+// so if we want to exclude _id,
+// we need to explicitly mention it
+_id: 0
+}
+ 
+)
+
+
+// data-types in MongoDB
+text -> string
+boolean
+number -> integer 32bit, NumberLong 64bit, NumberDecimal
+
+ObjectId
+Array
+ISODate
+Timestamp
+Emb.document
+
+// let's create another db and a collection to understand better
+new_db> use jojo_ltd
+switched to db jojo_ltd
+
+// inserting a sample document
+jojo_ltd> db.companyData.insertOne(
+{
+name: "jojo", isFunded: true, 
+funding: 77475325465326415732545325475327457253, 
+employees:[{name: "vipul", age: 32}, {name: "jotaro", age: 43}], 
+foundedOn: new Date(), foundedOnTimestamp: new Timestamp()
+})
+
+>>
+{
+  acknowledged: true,
+  insertedId: ObjectId('6894ac0810efc90c6a50eb67')
+}
+
+jojo_ltd> db.companyData.find()
+[
+  {
+    _id: ObjectId('6894ac0810efc90c6a50eb67'),
+    name: 'jojo',
+    isFunded: true,
+    funding: 7.747532546532642e+37,
+    employees: [ { name: 'vipul', age: 32 }, { name: 'jotaro', age: 43 } ],
+    foundedOn: ISODate('2025-08-07T13:37:12.976Z'),
+    foundedOnTimestamp: Timestamp({ t: 1754573832, i: 1 })
+  }
+]
+
+
+
+// type checking but typeof simply returns generic types
+
+jojo_ltd> typeof db.companyData.findOne()._id
+object
+jojo_ltd> typeof db.companyData.findOne().foundedOn
+object
+jojo_ltd> typeof db.companyData.findOne().foundedOn
+object
+
+// to get check type of mongo data-type that is built on-top of JS objects
+// we need to call it's constructor's name
+
+// first store the doc in a var for easy access
+
+jojo_ltd> var doc = db.companyData.findOne();
+
+
+// iterate over entries: (key, val) pairs
+
+jojo_ltd> if (doc) {
+   Object.entries(doc).forEach(([key, value]) => {
+
+	               // call name prop from the constructor prop 
+  print(`type of ${key}: ${value?.constructor?.name}`);
+  });
+}
+
+// result
+type of _id: ObjectId
+type of name: String
+type of isFunded: Boolean
+type of funding: Number
+type of employees: Array
+type of foundedOn: Date
+type of foundedOnTimestamp: Timestamp
+
+
+// how to delete database in MongoDB
+jojo_ltd> use mydb
+switched to db mydb
+mydb> db.products.insertOne({name: "jojo console", price: 123123, currency: "inr"})
+{
+  acknowledged: true,
+  insertedId: ObjectId('6894b0a510efc90c6a50eb68')
+}
+mydb> show collections
+products
+
+// this drops all the collections inside the db
+mydb> db.dropDatabase()
+{ ok: 1, dropped: 'mydb' }
+mydb> show collections
+>> // empty output
+
+// let's create a collection again
+mydb> db.products.insertOne({name: "jojo console", price: 123123, currency: "inr"})
+{
+  acknowledged: true,
+  insertedId: ObjectId('6894b11610efc90c6a50eb69')
+}
+mydb> show collections
+products
+
+// another collection
+mydb> db.products_new.insertOne({name: "jojo console", price: 123123, currency: "inr"})
+{
+  acknowledged: true,
+  insertedId: ObjectId('6894b13310efc90c6a50eb6a')
+}
+mydb> show collections
+products
+products_new
+
+// drop a collection
+// now say we want to drop this products_new collection
+// for that use db.<collection_name>.drop() method
+mydb> db.products_new.drop()
+true
+mydb> show collections
+products
+
+
+// options of insert Commands
+// for insertOne
+	// data-> doc, options: {writeConcern}
+dbdb.<collection_name>.insertMany(data, options)
+
+// for insertMany
+
+	// data-> doc, options: object: {writeConcern, ordered}
+db.<collection_name>.insertMany(data, options)
+writeConcern
+
+document
+
+Optional. A document expressing the write concern. Omit to use the default write concern. See Write Concern.
+
+Do not explicitly set the write concern for the operation if run in a transaction. To use write concern with transactions, see Transactions and Write Concern.
+
+ordered
+
+boolean
+
+Optional. If true, perform an ordered insert of the documents in the array, and if an error occurs with one of documents, MongoDB will return without processing the remaining documents in the array.
+
+If false, perform an unordered insert, and if an error occurs with one of documents, continue processing the remaining documents in the array.
+
+Defaults to true.
+
+
+
+// Schema Validation
+mydb> use books
+switched to db books
+books> db.nonfiction.insertOne(
+... { name: "48 laws of yahoo power", price: 989, author: "jojo" }
+... )
+{
+  acknowledged: true,
+  insertedId: ObjectId('6894f48610efc90c6a50eb6b')
+}
+books> db.nonfiction.find()
+[
+  {
+    _id: ObjectId('6894f48610efc90c6a50eb6b'),
+    name: '48 laws of yahoo power',
+    price: 989,
+    author: 'jojo'
+  }
+]
+books> db.nonfiction.findOne()
+{
+  _id: ObjectId('6894f48610efc90c6a50eb6b'),
+  name: '48 laws of yahoo power',
+  price: 989,
+  author: 'jojo'
+}
+books> db.createCollection(
+...   // collection name
+...   "nonfiction",
+...
+...   {
+...     // validator: { $jsonSchema: {} },
+...
+...     // what to do if validation fails
+...     // validationAction: "error", // default
+...
+...     validator: {
+...       $jsonSchema: {
+...         required: ["name", "price"],
+...         properties: {
+...           name: {
+...             bsonType: "string",
+...             description: "must be a string and required",
+...           },
+...           price: {
+...             bsonType: "number",
+...             description: "must be a number and required",
+...           },
+...         },
+...       },
+...     },
+...     validationAction: "error", // again, error is default value for validation action
+...   }
+... );
+MongoServerError[NamespaceExists]: namespace books.nonfiction already exists, but with different options: { uuid: UUID("4e144d67-c841-488d-84a0-d96176e30183") }
+books> db.nonfiction.drop()
+true
+books> db.createCollection(
+...   // collection name
+...   "nonfiction",
+...
+...   {
+...     // validator: { $jsonSchema: {} },
+...
+...     // what to do if validation fails
+...     // validationAction: "error", // default
+...
+...     validator: {
+...       $jsonSchema: {
+...         required: ["name", "price"],
+...         properties: {
+...           name: {
+...             bsonType: "string",
+...             description: "must be a string and required",
+...           },
+...           price: {
+...             bsonType: "number",
+...             description: "must be a number and required",
+...           },
+...         },
+...       },
+...     },
+...     validationAction: "error", // again, error is default value for validation action
+...   }
+... );
+{ ok: 1 }
+books> db.nonfiction
+books.nonfiction
+books> db.nonfiction.find()
+
+books> db.nonfiction.insertMany([
+... {name: "48 laws of yahoo power", price: 989},
+... {name: "game of spices & chillies", price: 1289}
+... ])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('6894f55710efc90c6a50eb6c'),
+    '1': ObjectId('6894f55710efc90c6a50eb6d')
+  }
+}
+books> db.nonfiction.insertOne({name: "hehe"})
+Uncaught:
+MongoServerError: Document failed validation
+Additional information: {
+  failingDocumentId: ObjectId('6894f56e10efc90c6a50eb6e'),
+  details: {
+    operatorName: '$jsonSchema',
+    schemaRulesNotSatisfied: [
+      {
+        operatorName: 'required',
+        specifiedAs: { required: [ 'name', 'price' ] },
+        missingProperties: [ 'price' ]
+      }
+    ]
+  }
+}
+books> db.nonfiction.insertOne({name: "hehe", price: "bahut zyada"})
+Uncaught:
+MongoServerError: Document failed validation
+Additional information: {
+  failingDocumentId: ObjectId('6894f57a10efc90c6a50eb6f'),
+  details: {
+    operatorName: '$jsonSchema',
+    schemaRulesNotSatisfied: [
+      {
+        operatorName: 'properties',
+        propertiesNotSatisfied: [
+          {
+            propertyName: 'price',
+            description: 'must be a number and required',
+            details: [
+              {
+                operatorName: 'bsonType',
+                specifiedAs: { bsonType: 'number' },
+                reason: 'type did not match',
+                consideredValue: 'bahut zyada',
+                consideredType: 'string'
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+books> db.nonfiction.insertOne({name: "hehe", price: 9999})
+{
+  acknowledged: true,
+  insertedId: ObjectId('6894f58210efc90c6a50eb70')
+}
+books> // to change/modify validation schema
+... db.runCommand({
+...   // collection modifier
+...   collMod: "nonfiction",
+...   validator: {
+...     $jsonSchema: {
+...       required: ["name", "price", "authors"],
+...       properties: {
+...         name: {
+...           bsonType: "string",
+...           description: "must be a string and required",
+...         },
+...         price: {
+...           bsonType: "number",
+...           description: "must be a number and required",
+...         },
+...         authors: {
+...           bsonType: "array",
+...           description: "must be an array and required",
+...
+...           items: {
+...             bsonType: "object",
+...             required: ["name", "email"],
+...             properties: {
+...               name: {
+...                 bsonType: "string",
+...                 description: "must be a string and required",
+...               },
+...               email: {
+...                 bsonType: "string",
+...                 description: "must be a string and required",
+...               },
+...             },
+...           },
+...         },
+...       },
+...     },
+...   },
+...
+...   validationAction: "error"
+... });
+{ ok: 1 }
+books> db.nonfiction.insertOne({name: "hehe: part 2", price: 9999})
+Uncaught:
+MongoServerError: Document failed validation
+Additional information: {
+  failingDocumentId: ObjectId('6894f5a210efc90c6a50eb71'),
+  details: {
+    operatorName: '$jsonSchema',
+    schemaRulesNotSatisfied: [
+      {
+        operatorName: 'required',
+        specifiedAs: { required: [ 'name', 'price', 'authors' ] },
+        missingProperties: [ 'authors' ]
+      }
+    ]
+  }
+}
+books> db.nonfiction.insertOne({name: "hehe: part 2", price: 9999, authors: "jojo"})
+Uncaught:
+MongoServerError: Document failed validation
+Additional information: {
+  failingDocumentId: ObjectId('6894f5ac10efc90c6a50eb72'),
+  details: {
+    operatorName: '$jsonSchema',
+    schemaRulesNotSatisfied: [
+      {
+        operatorName: 'properties',
+        propertiesNotSatisfied: [
+          {
+            propertyName: 'authors',
+            description: 'must be an array and required',
+            details: [
+              {
+                operatorName: 'bsonType',
+                specifiedAs: { bsonType: 'array' },
+                reason: 'type did not match',
+                consideredValue: 'jojo',
+                consideredType: 'string'
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+books> db.nonfiction.insertOne({name: "hehe: part 2", price: 9999, authors: {name: "jojo", email: "jojo@jojo.jojo"}})
+Uncaught:
+MongoServerError: Document failed validation
+Additional information: {
+  failingDocumentId: ObjectId('6894f5d110efc90c6a50eb73'),
+  details: {
+    operatorName: '$jsonSchema',
+    schemaRulesNotSatisfied: [
+      {
+        operatorName: 'properties',
+        propertiesNotSatisfied: [
+          {
+            propertyName: 'authors',
+            description: 'must be an array and required',
+            details: [
+              {
+                operatorName: 'bsonType',
+                specifiedAs: { bsonType: 'array' },
+                reason: 'type did not match',
+                consideredValue: { name: 'jojo', email: 'jojo@jojo.jojo' },
+                consideredType: 'object'
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+books> db.nonfiction.insertOne({name: "hehe: part 2", price: 9999, authors: [{name: "jojo", email: "jojo@jojo.jojo"}]})
+{
+  acknowledged: true,
+  insertedId: ObjectId('6894f5e210efc90c6a50eb74')
+}
+books> db.nonfiction.insertOne({name: "hehe: part 3", price: 19990, authors: [{name: "jojo", email: "jojo@jojo.jojo"}, {name: "nana", email: "nana@mail.com"}]})
+{
+  acknowledged: true,
+  insertedId: ObjectId('6894f61610efc90c6a50eb75')
+}
+
+
+
+
+// Write Concern
+
+write concern object
+{ w: value, j: Boolean, wtimeout: number }
+
+w: request the ack or not -> basically if the write operation is being performed, the mongod/mongosh will not wait for the ack. whether the task has been completed or not
+
+j: true/false -> for jornaling in case server got shut down to return contuining thr process from where it left after the comes back online
+
+wtimeout: after this much ms, abort the write operation
+
+db.nonfiction.insertMany(
+ // data to be inserted in the db
+{name: "yo", price: 891, authors: [{name: "hehe", email: "hehe@mail.com"}]},
+
+// options
+{
+// write concern
+writeconcern: {
+	w: 0, // do not ack
+	j: true, // maintain the journal
+	wtimeout: 2000, // even after 2s, the write operation hasn't completed: abort the operation
+},
+
+// ordered: true
+}
+)
+
+
+// replication
+
+create directories named db1, db2, db3 in mongodb server data folder
+
+then open terminals as admin (if in Linux or mac use sudo )
+
+terminal 1
+$ mongod --port 27018 --dbpath "<DB path>/db1" --replSet rs1 
+terminal 2
+$ mongod --port 27019 --dbpath "<DB path>/db1" --replSet rs1 
+terminal 3
+$ mongod --port 27020 --dbpath "<DB path>/db1" --replSet rs1 
+
+open another terminal (do not close previous three as they are running the mongo server at different ports as replica set)
+
+rs.initiate({
+	_id: "rs1",
+	members: [
+	{ _id: 0, host: "localhost:27018" },
+	{ _id: 1, host: "localhost:27019" },
+	{ _id: 2, host: "localhost:27020" },
+	]
+})
+
+
+
+$ mongosh --port 27018
+test> rs.initiate({
+...     _id: "rs1",
+...     members: [
+...     { _id: 0, host: "localhost:27018" },
+...     { _id: 1, host: "localhost:27019" },
+...     { _id: 2, host: "localhost:27020" },
+...     ]
+... })
+{
+  ok: 1,
+  '$clusterTime': {
+    clusterTime: Timestamp({ t: 1754597116, i: 1 }),
+    signature: {
+      hash: Binary.createFromBase64('AAAAAAAAAAAAAAAAAAAAAAAAAAA=', 0),
+      keyId: Long('0')
+    }
+  },
+  operationTime: Timestamp({ t: 1754597116, i: 1 })
+}
+rs1 [direct: secondary] test>
+
+
+// open more terminals to run these
+mongosh port --27019
+mongosh port --27020
+
+they all are secondary, so which one is primary?
+
+rs.status()
+
+from the port where we used rs.initiate, becomes our primary node (or may be the first one in the array is the primary node?, need some confirmation here)
+
+show dbs in 27018 (primary node)
+admin
+config
+local
+
+show dbs in 27019 (secondary node)
+error
+
+by default all the secondary nodes do not have any kind of read or write access
+
+
+we need to authorize them using admin db and setting master slaveOk
+
+
+// we can do it from the secondary node itself
+// switch to admin db
+use admin
+
+// set slave ok
+db.getMongo().setSlaveOk() // in previous versions
+
+db.getMongo().setSecondaryOk() // then this came
+
+// then mongosh came depecating mongo shell
+
+now we use getMongo().setReadPref("secondary")
+
+show dbs
+admin
+local
+config
+
+
+// shiiiiiiiiit
+
+in newer version of mongosh i didn't even need to give then access using readPref
+
+they already has read access
+
+// hehe, access denied
+// i can only read from secondary servers
+// but from primary I can do R/W
+
+rs1 [direct: secondary] kulfi> db.pista_kulfi.insertOne({name: "malai pista kulfi", price: 3267487957})
+MongoServerError[NotWritablePrimary]: not primary 
+
