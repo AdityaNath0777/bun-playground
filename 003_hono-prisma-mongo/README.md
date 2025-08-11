@@ -74,3 +74,37 @@ async function main() {
 
 result: `all users: []`
 
+## Implementing Redis
+- create docker-compose.yml for redis
+```yml
+services:
+  redis:
+    image: redis:8.2.0-alpine
+    container_name: my-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: always
+
+volumes:
+  redis-data:
+```
+
+```bash
+docker compose up -d
+docker compose ps # to confirm the conatiner has been spinned up
+```
+
+```bash
+docker exec -it my-redis redis-cli
+```
+
+### Basic Redis CLI
+```redis-cli
+set raam siya
+get raam
+
+set yooo yoyo EX 10
+get yooo
+```
