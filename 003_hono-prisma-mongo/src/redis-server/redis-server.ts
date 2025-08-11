@@ -1,6 +1,5 @@
 import { createClient, RedisArgument } from "redis";
 import { logger } from "../lib/logger";
-import { password } from "bun";
 
 const client = createClient();
 
@@ -11,6 +10,8 @@ await client.connect();
 if (client.isReady) {
   console.log(`Connected to Redis Server successfully`);
 }
+
+export { client };
 
 // await client.set('raam', 'siya');
 // await client.set('siya', 'raam');
@@ -75,18 +76,18 @@ async function fn(key: RedisArgument) {
 // await runInfiniteIterations(fn);
 
 
-await client.hSet("user:123", {
-  id: "123",
-  username: "user001",
-  email: "user001@mail.com",
-  passwordHash: "bq348rb7f4uydt3874", // not actual hash, any random value for example my mittar 🥸
-  age: 17
-})
+// await client.hSet("user:123", {
+//   id: "123",
+//   username: "user001",
+//   email: "user001@mail.com",
+//   passwordHash: "bq348rb7f4uydt3874", // not actual hash, any random value for example my mittar 🥸
+//   age: 17
+// })
 
 
-const user = await client.hGetAll("user:123");
+// const user = await client.hGetAll("user:123");
 
-const typedUser = { ...user, age: Number(user.age) }
+// const typedUser = { ...user, age: Number(user.age) }
 
-console.log("user:123 : ", JSON.stringify(user), user);
-console.log("user:123 : ", typedUser);
+// console.log("user:123 : ", JSON.stringify(user), user);
+// console.log("user:123 : ", typedUser);
